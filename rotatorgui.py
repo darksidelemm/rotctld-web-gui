@@ -115,6 +115,7 @@ class ROTCTLD(object):
 
 
     def halt(self):
+    	""" Immediately halt rotator movement, if it support it """
     	self.send_command('S')
 
 
@@ -179,7 +180,6 @@ def halt_rotator(data):
 	rotator.halt()
 
 
-
 @socketio.on('get_position', namespace='/update_status')
 def read_position(data):
 	(_az, _el) = rotator.get_azel()
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--listen_port",default=5001,help="Port to run Web Server on. (Default: 5001)")
     parser.add_argument('--host', type=str, default='localhost', help="Rotctld server host. (Default: localhost)")
-    parser.add_argument('--port', type=int, default=4533, help="Rotctld server port. (Default: 4533")
+    parser.add_argument('--port', type=int, default=4533, help="Rotctld server port. (Default: 4533)")
     args = parser.parse_args()
 
     # Try and connect to the rotator.
@@ -212,10 +212,9 @@ if __name__ == "__main__":
     	print("Could not connect to rotctld server- %s" % str(e))
     	sys.exit(1)
 
-
-
     # Run the Flask app, which will block until CTRL-C'd.
     socketio.run(app, host='0.0.0.0', port=args.listen_port)
 
+    # Close the rotator connection.
     rotator.close()
 

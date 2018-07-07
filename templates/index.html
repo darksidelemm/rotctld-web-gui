@@ -22,7 +22,7 @@
             var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
 
 
-            
+            // Handle a position update.
             socket.on('position_event', function(msg) {
                 var _az = msg.azimuth.toFixed(1);
                 var _el = msg.elevation.toFixed(1);
@@ -32,6 +32,7 @@
                 $('#current_position').html(_text);
             });
 
+            // Handle a setpoint update.
             socket.on('setpoint_event', function(msg) {
                 var _az = msg.azimuth.toFixed(1);
                 var _el = msg.elevation.toFixed(1);
@@ -41,7 +42,7 @@
                 $('#setpoint').html(_text);
             });       
 
-
+            // Button callback functions. Fairly self explanatory.
             updateSetpoint = function updateSetpoint(motor_val, delta_val){
                 socket.emit('update_setpoint', {delta: delta_val, motor: motor_val});
             };
@@ -57,9 +58,10 @@
             // Tell the server we are connected and ready for data.
             socket.on('connect', function() {
                 socket.emit('client_connected', {data: 'I\'m connected!'});
-                // This will cause the server to emit a few messages telling us to fetch data.
+                // This will cause the server to update us with the latest position and setpoint data.
             });
 
+            // Request current rotator position every second. (Too much?)
             window.setInterval(function () {
                 socket.emit('get_position',{});
             }, 1000); 
